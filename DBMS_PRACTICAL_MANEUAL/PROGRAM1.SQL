@@ -1,0 +1,175 @@
+CREATE DATABASE CUSTOMER;
+USE CUSTOMER;
+CREATE TABLE CUST(
+Custno INT PRIMARY KEY,
+Custname VARCHAR(50) NOT NULL,
+Addln1 VARCHAR(100),
+Addln2 VARCHAR(100),
+City VARCHAR(50),
+State VARCHAR(50),
+Phone VARCHAR(50)
+);
+DESC CUST;
+-- insert data 
+INSERT INTO CUST (Custno, Custname, Addln1, Addln2, City, State, Phone) 
+VALUES (101,"Urmi", "variya vandan ", "chitra", "Bhavnagar", "Gujarat", "9866745637");
+
+INSERT INTO CUST (Custno, Custname, Addln1, Addln2, City, State, Phone) 
+VALUES(102,"Parth", "Lalbaug", "Maninagar", "Ahmedabad", "Gujarat", "9876543210");
+
+INSERT INTO CUST (Custno, Custname, Addln1, Addln2, City, State, Phone) 
+VALUES(103,"Pooja", "Lalbaug", "Akota", "Baroda", "Gujarat", "9876543211");
+
+INSERT INTO CUST (Custno, Custname, Addln1, Addln2, City, State, Phone) 
+VALUES(104,"Amit", "Rupani Circle", "Bhavnagar", "Bhavnagar", "Gujarat", "9876543212");
+
+INSERT INTO CUST (Custno, Custname, Addln1, Addln2, City, State, Phone) 
+VALUES(105,"Rahul", "Andheri West", "Link Road", "Mumbai", "Maharashtra", "9876543213");
+
+SELECT * FROM CUST;
+
+CREATE TABLE ITEM(
+Itemno INT PRIMARY KEY ,
+Itemname VARCHAR(50),
+Itemprice INT CHECK (Itemprice >=0),
+Qty_On_Hand INT CHECK (Qty_On_Hand >=0)
+);
+DESC ITEM;
+-- INSERT ITEM DATA
+INSERT INTO ITEM (Itemno, Itemname, Itemprice, Qty_On_Hand) 
+VALUES(101, 'Laptop', 45000, 10);
+
+INSERT INTO ITEM (Itemno, Itemname, Itemprice, Qty_On_Hand) 
+VALUES(102, 'Mouse', 250, 50);
+
+INSERT INTO ITEM (Itemno, Itemname, Itemprice, Qty_On_Hand) 
+VALUES(103, 'Keyboard', 450, 30);
+
+INSERT INTO ITEM (Itemno, Itemname, Itemprice, Qty_On_Hand) 
+VALUES(104, 'Pen Drive', 80, 100);
+
+INSERT INTO ITEM (Itemno, Itemname, Itemprice, Qty_On_Hand) 
+VALUES(105,'monitor', 350, 100);
+
+SELECT * FROM  ITEM;
+
+
+CREATE TABLE INVOICE(
+Invno INT PRIMARY KEY,
+Invdate DATE NOT NULL ,
+CUSTNO INT NOT NULL,
+FOREIGN KEY (Custno) REFERENCES CUST(Custno)
+);
+DESC INVOICE;
+-- insert data in INVOICE
+INSERT INTO INVOICE VALUES(301, '2026-08-10', 101);
+
+INSERT INTO INVOICE VALUES(302, '2026-08-11', 102);
+
+INSERT INTO INVOICE VALUES(303, '2026-08-12', 103);
+
+INSERT INTO INVOICE VALUES(304, '2026-08-13', 104);
+
+INSERT INTO INVOICE VALUES(305, '2026-08-14', 105);
+
+SELECT * FROM INVOICE;
+
+CREATE TABLE INV_ITEM(
+Invno INT,
+Itemno INT,
+FOREIGN KEY (Invno) REFERENCES INVOICE(Invno),
+FOREIGN KEY (Itemno) REFERENCES ITEM( Itemno),
+Qty_Used INT CHECK (Qty_Used > 0)
+);
+DESC INV_ITEM ;
+-- INSERT DATA IN INV_ITEM
+
+INSERT INTO INV_ITEM VALUES 
+(301, 101, 2), 
+(301, 102, 1), 
+(302, 103, 1), 
+(302, 104, 3), 
+(303, 105, 2), 
+(304, 101, 1);
+
+
+SELECT * FROM INV_ITEM;
+
+-- QUERY STRAT (UPDATE, INSERT,DELETE)
+-- Add a column – “colour” to the Item table. 
+ALTER TABLE ITEM 
+ADD COLUMN COLOUR VARCHAR(50);
+DESC ITEM;
+
+UPDATE ITEM
+SET colour = "Black"
+WHERE Itemno = 101;
+
+UPDATE ITEM
+SET colour = "White"
+WHERE Itemno = 102;
+
+UPDATE ITEM
+SET colour = "Black"
+WHERE Itemno = 103;
+
+UPDATE ITEM
+SET colour = "Blue"
+WHERE Itemno = 104;
+
+UPDATE ITEM
+SET colour = "Red"
+WHERE Itemno = 105;
+
+SELECT * FROM ITEM;
+
+-- Display the column Item name and Price in sentence form using concatenation. 
+SELECT CONCAT('The item ', Itemname,
+              ' has a price of Rs. ', Itemprice)
+       AS Item_Details
+FROM ITEM;
+-- Find the total value of each item (item price * qty). 
+SELECT Itemno,
+       Itemname,
+       Itemprice,
+       Qty_On_Hand,
+       Itemprice * Qty_On_Hand AS Total_Value
+FROM ITEM;
+
+-- Display the list of customers belonging to “Gujarat” state.
+SELECT *
+FROM CUST
+WHERE State = 'Gujarat';
+
+-- Display items with unit price between`100 and ` 500. 
+SELECT *
+FROM ITEM
+WHERE Itemprice BETWEEN 100 AND 500;
+
+-- Find the customers from “Lalbaug” city of Ahmedabad and Baroda. 
+SELECT *
+FROM CUST
+WHERE City IN ('Ahmedabad', 'Baroda')
+AND (Addln1 LIKE '%Lalbaug%'
+     OR Addln2 LIKE '%Lalbaug%');
+ -- simple query on lalbag    
+SELECT *
+FROM CUST
+WHERE City IN ('Ahmedabad', 'Baroda');
+     
+-- Find all the customers whose name starts with the letter ‘P’.
+SELECT *
+FROM CUST
+WHERE Custname LIKE 'P%';
+
+-- Find the total, average, highest and lowest unit price of an item
+SELECT
+    SUM(Itemprice) AS Total_Price,
+    AVG(Itemprice) AS Average_Price,
+    MAX(Itemprice) AS Highest_Price,
+    MIN(Itemprice) AS Lowest_Price
+FROM ITEM;
+
+
+
+

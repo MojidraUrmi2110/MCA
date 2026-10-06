@@ -1,0 +1,149 @@
+CREATE DATABASE HOSTEL1;
+USE HOSTEL1;
+-- 1. Create HOSTEL Table
+CREATE TABLE HOSTEL (
+    Hno VARCHAR(10) PRIMARY KEY,
+    Hname VARCHAR(100) NOT NULL,
+    Haddress VARCHAR(255),
+    Total_Capacity INT,
+    Warden_Nm VARCHAR(100)
+);
+DESC HOSTEL;
+
+-- INSERT INTO HOSTEL
+INSERT INTO HOSTEL VALUES ('H1', 'Chanakya', 'North Campus', 500, 'Mr. Sharma');
+INSERT INTO HOSTEL VALUES ('H2', 'Ashoka', 'South Campus', 300, 'Dr. Verma');
+SELECT * FROM HOSTEL;
+
+-- 2. Create ROOM Table
+CREATE TABLE ROOM (
+    Hno VARCHAR(10),
+    Rno VARCHAR(10),
+    Rtype VARCHAR(20), 
+    Location VARCHAR(100),
+    No_Of_Students INT,
+    Status VARCHAR(20) CHECK (Status IN ('Occupied', 'Vacant')),
+    PRIMARY KEY (Hno, Rno),
+    FOREIGN KEY (Hno) REFERENCES HOSTEL(Hno)
+);
+DESC ROOM;
+
+-- ISERT INTO ROOM 
+INSERT INTO ROOM VALUES ('H1', '101', 'Double', '1st Floor', 2, 'Occupied');
+INSERT INTO ROOM VALUES ('H1', '102', 'Single', '1st Floor', 0, 'Vacant');
+INSERT INTO ROOM VALUES ('H2', '201', 'Four-seated', '2nd Floor', 0, 'Vacant');
+INSERT INTO ROOM VALUES ('H2', '202', 'Double', '2nd Floor', 1, 'Occupied');
+
+SELECT * FROM ROOM;
+
+-- 3. Create CHARGES Table
+CREATE TABLE CHARGES (
+    Hno VARCHAR(10),
+    Rtype VARCHAR(20),
+    Charges DECIMAL(10, 2),
+    PRIMARY KEY (Hno, Rtype),
+    FOREIGN KEY (Hno) REFERENCES HOSTEL(Hno)
+);
+DESC CHARGES;
+-- INSERT INTO CHARGES
+INSERT INTO CHARGES VALUES ('H1', 'Double', 5000.00);
+INSERT INTO CHARGES VALUES ('H1', 'Single', 8000.00);
+
+SELECT * FROM CHARGES;
+
+-- 4. Create STUDENT Table
+CREATE TABLE STUDENT (
+    Sid VARCHAR(10) PRIMARY KEY,
+    Sname VARCHAR(100) NOT NULL,
+    Saddr VARCHAR(255),
+    Faculty VARCHAR(50), 
+    Dept VARCHAR(50),    
+    Class VARCHAR(20),
+    Hno VARCHAR(10),
+    Rno VARCHAR(10),
+    FOREIGN KEY (Hno, Rno) REFERENCES ROOM(Hno, Rno)
+);
+DESC STUDENT;
+
+-- INSERT INTO STUDENT
+INSERT INTO STUDENT VALUES ('S1', 'Rahul', 'Delhi', 'Science', 'Computer Science', 'SY', 'H1', '101');
+INSERT INTO STUDENT VALUES ('S2', 'Amit', 'Mumbai', 'Medical', 'MBBS', 'FY', 'H1', '101');
+INSERT INTO STUDENT VALUES ('S3', 'Priya', 'Pune', 'Science', 'Computer Science', 'TY', 'H2', '202');
+
+SELECT * FROM STUDENT;
+
+-- 5. Create FEES Table
+CREATE TABLE FEES (
+    Sid VARCHAR(10),
+    Fdate DATE,
+    Famount DECIMAL(10, 2),
+    PRIMARY KEY (Sid, Fdate),
+    FOREIGN KEY (Sid) REFERENCES STUDENT(Sid)
+);
+DESC FEES;
+-- INSERT INTO FEES
+INSERT INTO FEES VALUES ('S1', '2011-11-15', 5000.00);
+INSERT INTO FEES VALUES ('S2', '2011-10-05', 5000.00);
+INSERT INTO FEES VALUES ('S3', '2011-11-20', 8000.00);
+
+SELECT * FROM FEES;
+
+-- QUERIES ARE...
+-- 1. Display the total number of rooms that are presently vacant. 
+SELECT COUNT(*) AS Vacant_Rooms 
+FROM ROOM 
+WHERE LOWER(Status) = 'vacant';
+
+-- 2.Display the number of students who are staying in ‘double’ seated room for each hostel. 
+SELECT r.Hno, COUNT(s.Sid) AS Total_Students
+FROM ROOM r
+LEFT JOIN STUDENT s ON r.Hno = s.Hno AND r.Rno = s.Rno
+WHERE LOWER(r.Rtype) = 'double'
+GROUP BY r.Hno;
+
+-- 3.Display the warden’s name and hostel address of students of ‘Computer Science’ Department. 
+SELECT DISTINCT h.Warden_Nm, h.Haddress
+FROM HOSTEL h
+JOIN STUDENT s ON h.Hno = s.Hno
+WHERE LOWER(s.Dept) = 'computer science';
+
+-- 4.Display the hostel details where single seated or four-seated rooms are vacant. 
+SELECT DISTINCT h.Hno, h.Hname, h.Haddress, h.Total_Capacity, h.Warden_Nm
+FROM HOSTEL h
+JOIN ROOM r ON h.Hno = r.Hno
+WHERE LOWER(r.Rtype) IN ('single', 'four-seated')
+  AND LOWER(r.Status) = 'vacant';
+  
+  -- 5.Count the total number of ‘medical’ students who live in the hostel. 
+  SELECT COUNT(Sid) AS Medical_Students
+FROM STUDENT
+WHERE LOWER(Faculty) = 'medical' 
+  AND Hno IS NOT NULL;
+  
+  -- 6.List details about students who are staying in the double-seated rooms of “Chanakya” Hostel. 
+  SELECT s.Sid, s.Sname, s.Saddr, s.Faculty, s.Dept, s.Class, s.Hno, s.Rno
+FROM STUDENT s
+JOIN HOSTEL h ON s.Hno = h.Hno
+JOIN ROOM r ON s.Hno = r.Hno AND s.Rno = r.Rno
+WHERE LOWER(h.Hname) = 'chanakya'
+  AND LOWER(r.Rtype) = 'double';
+  
+  -- OTHER QUERY OF NUMBER 6
+  SELECT *
+FROM STUDENT s
+JOIN HOSTEL h ON s.Hno = h.Hno
+JOIN ROOM r ON s.Hno = r.Hno AND s.Rno = r.Rno
+WHERE LOWER(h.Hname) = 'chanakya'
+  AND LOWER(r.Rtype) = 'double';
+  
+  -- 7.Display the total number of students staying in each room type of each hostel.
+  SELECT r.Hno, r.Rtype, COUNT(s.Sid) AS Total_Students
+FROM ROOM r
+LEFT JOIN STUDENT s ON r.Hno = s.Hno AND r.Rno = s.Rno
+GROUP BY r.Hno, r.Rtype;
+
+-- 8.Display details about students who have paid the fees in the month of November 2011. 
+SELECT DISTINCT s.Sid, s.Sname, s.Saddr, s.Faculty, s.Dept, s.Class
+FROM STUDENT s
+JOIN FEES f ON s.Sid = f.Sid
+WHERE f.Fdate >= '2011-11-01' AND f.Fdate < '2011-12-01';

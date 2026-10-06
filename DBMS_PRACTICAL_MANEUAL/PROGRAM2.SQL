@@ -1,0 +1,137 @@
+CREATE DATABASE STUDENT_INFO;
+USE STUDENT_INFO;
+
+CREATE TABLE STUDENT
+(
+    ROLLNO   INT,
+    NAME      VARCHAR(30) NOT NULL,
+    CLASS      VARCHAR(20) NOT NULL,
+    BIRTHDATE  DATE,
+
+    CONSTRAINT PK_STUDENT PRIMARY KEY (ROLLNO)
+);
+DESC STUDENT;
+
+-- INSERTING DATA 
+INSERT INTO STUDENT
+VALUES
+(101, 'Parth Patel', 'BCA', '1980-06-15'),
+(102, 'Priya Shah', 'BSC.IT', '1982-08-20'),
+(103, 'Rahul Mehta', 'MCA', '1981-03-10'),
+(104, 'Neha Desai', 'BCA', '1982-12-25'),
+(105, 'Amit Patel', 'BSC.IT', '1983-01-05');
+
+SELECT * FROM STUDENT;
+
+
+
+CREATE TABLE COURSE
+(
+    COURSENO   INT,
+    COURSENAME  VARCHAR(50) NOT NULL,
+    MAX_MARKS   FLOAT,
+    PASS_MARKS  FLOAT,
+
+    CONSTRAINT PK_COURSE PRIMARY KEY (COURSENO),
+    CONSTRAINT CHK_MAXMARKS CHECK (MAX_MARKS > 0),
+    CONSTRAINT CHK_PASSMARKS CHECK (PASS_MARKS >= 0 AND PASS_MARKS <= MAX_MARKS)
+);
+DESC COURSE;
+
+-- INSERTING DATA 
+INSERT INTO COURSE
+VALUES
+(201, 'Database Management System', 100, 40),
+(202, 'Data Structure', 100, 35),
+(203, 'Java Programming', 100, 40),
+(204, 'Computer Network', 100, 30),
+(205, 'Web Technology', 100, 45);
+SELECT * FROM COURSE;
+
+
+CREATE TABLE SC
+(
+    ROLLNO   INT,
+    COURSENO  INT,
+    MARKS     FLOAT,
+
+   --  CONSTRAINT pk_sc PRIMARY KEY (ROLLNO, COURSENO),
+
+   -- CONSTRAINT fk_sc_student
+        FOREIGN KEY (ROLLNO) REFERENCES STUDENT(ROLLNO),
+
+   -- CONSTRAINT fk_sc_course
+        FOREIGN KEY (Courseno) REFERENCES COURSE(Courseno)
+);
+DESC SC;
+
+-- INSERTNG DATA 
+INSERT INTO SC
+VALUES
+(101, 201, 85),
+(101, 202, 78),
+(101, 203, 92),
+
+(102, 201, 90),
+(102, 203, 95),
+(102, 204, 82),
+
+(103, 201, 65),
+(103, 204, 75),
+(103, 205, 80),
+
+(104, 202, 88),
+(104, 203, 85),
+(104, 205, 90),
+
+(105, 201, 55),
+(105, 202, 68),
+(105, 204, 72);
+
+SELECT * FROM SC;
+
+-- Add a constraint that the marks entered should strictly be between 0 and 100.
+ALTER TABLE SC
+ADD CONSTRAINT CHK_MARKS
+CHECK (MARKS > 0 AND MARKS < 100);
+DESC SC;
+
+-- Display details of students who take the ‘Database Management System’ course. 
+SELECT S.*
+FROM STUDENT S
+JOIN SC
+    ON S.ROLLNO = SC.ROLLNO
+JOIN COURSE C
+    ON SC.COURSENO = C.COURSENO
+WHERE C.COURSENAME = 'Database Management System';
+
+-- Display the average marks obtained by each student. 
+
+SELECT S.ROLLNO,
+       S.NAME,
+       AVG(SC.MARKS) AS Average_Marks
+FROM STUDENT S
+JOIN SC
+    ON S.ROLLNO = SC.ROLLNO
+GROUP BY S.ROLLNO, S.NAME;
+
+-- Select all courses where passing marks are more than 30% of average maximum mark. 
+
+SELECT *
+FROM COURSE
+WHERE PASS_MARKS >
+      0.30 * (SELECT AVG(MAX_MARKS)
+              FROM COURSE);
+              
+-- Display details of students who were born in 1980 or 1982. 
+
+SELECT *
+FROM STUDENT
+WHERE YEAR(BIRTHDATE) IN (1980, 1982);
+
+-- Create a view that displays student courseno and its corresponding marks. 
+
+CREATE VIEW STUDENT_VIEW AS SELECT ROLLNO,NAME FROM STUDENT;
+SELECT * FROM STUDENT_VIEW;
+
+

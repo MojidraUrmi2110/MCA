@@ -1,0 +1,159 @@
+CREATE DATABASE HOSTEL_INFO;
+USE HOSTEL_INFO;
+CREATE TABLE HOSTEL (
+    Hno INT PRIMARY KEY,
+    Hname VARCHAR(50) NOT NULL,
+    Haddress VARCHAR(100),
+    Total_Capacity INT,
+    Warden_Nm VARCHAR(50)
+);
+DESC HOSTEL;
+ -- INSERT DATA INTO HOSTEL
+INSERT INTO HOSTEL (Hno, Hname, Haddress, Total_Capacity, Warden_Nm) VALUES
+(1, 'Chanakya Boys Hostel', 'Navrangpura, Near Gujarat University, Ahmedabad', 150, 'Rajeshbhai Patel'),
+(2, 'Sabarmati Girls Hostel', 'Ashram Road, Opp. Riverfront, Ahmedabad', 120, 'Meenaben Shah'),
+(3, 'Naranpura Student Home', 'Naranpura Cross Roads, Ahmedabad', 100, 'Kiritbhai Joshi'),
+(4, 'Sardar Patel Residency', 'Vastrapur, Near IIM, Ahmedabad', 200, 'Harishbhai Mehta'),
+(5, 'Karnavati International Hostel', 'SG Highway, Thaltej, Ahmedabad', 80, 'Amitbhai Trivedi');
+
+SELECT * FROM HOSTEL;
+
+CREATE TABLE ROOM (
+    Hno INT,
+    Rno INT,
+    Rtype VARCHAR(20),
+    Location VARCHAR(50),
+    No_Of_Students INT,
+    Status VARCHAR(10),
+    
+    PRIMARY KEY (Hno, Rno),
+    
+    FOREIGN KEY (Hno) REFERENCES HOSTEL(Hno)
+);
+DESC ROOM;
+-- INSERT DATA INTO ROOM
+INSERT INTO ROOM (Hno, Rno, Rtype, Location, No_Of_Students, Status) VALUES
+(1, 101, 'Single', 'Ground Floor - Block A', 1, 'Occupied'),
+(1, 102, 'Double', 'Ground Floor - Block A', 2, 'Occupied'),
+(1, 103, 'Four', 'First Floor - Block B', 4, 'Occupied'),
+(1, 104, 'Double', 'First Floor - Block B', 0, 'Vacant'),
+(2, 201, 'Single', 'Ground Floor - Main Wing', 0, 'Vacant'),
+(2, 202, 'Double', 'First Floor - Main Wing', 2, 'Occupied'),
+(2, 203, 'Four', 'Second Floor - Annex', 2, 'Partial'),
+(3, 301, 'Single', 'Block C', 1, 'Occupied'),
+(3, 302, 'Double', 'Block C', 0, 'Vacant'),
+(4, 401, 'Four', 'Ground Floor', 4, 'Occupied'),
+(4, 402, 'Single', 'First Floor', 0, 'Vacant'),
+(5, 501, 'Double', 'Premium Wing', 2, 'Occupied');
+
+SELECT * FROM ROOM;
+
+CREATE TABLE CHARGES (
+    Hno INT,
+    Rtype VARCHAR(20),
+    Charges DECIMAL(10,2),
+    
+    PRIMARY KEY (Hno, Rtype),
+    
+    FOREIGN KEY (Hno) REFERENCES HOSTEL(Hno)
+);
+DESC CHARGES;
+
+-- INSERT DATA INTO CHARGES TABLE
+INSERT INTO CHARGES (Hno, Rtype, Charges) VALUES
+(1, 'Single', 5000.00),
+(1, 'Double', 3500.00),
+(1, 'Four', 2000.00),
+(2, 'Single', 5500.00),
+(2, 'Double', 4000.00),
+(2, 'Four', 2500.00),
+(3, 'Single', 4500.00),
+(3, 'Double', 3200.00),
+(4, 'Single', 6000.00),
+(4, 'Four', 3000.00),
+(5, 'Double', 5000.00);
+
+SELECT * FROM CHARGES;
+
+CREATE TABLE STUDENTS (
+    Sid INT PRIMARY KEY,
+    Sname VARCHAR(50) NOT NULL,
+    Saddr VARCHAR(100),
+    Faculty VARCHAR(50),
+    Dept VARCHAR(50),
+    Class VARCHAR(20),
+    Hno INT,
+    Rno INT,
+    
+    FOREIGN KEY (Hno, Rno) REFERENCES ROOM(Hno, Rno)
+);
+DESC STUDENTS;
+-- INSERT DATA INTO STUDENTS
+INSERT INTO STUDENTS (Sid, Sname, Saddr, Faculty, Dept, Class, Hno, Rno) VALUES
+(101, 'Aarav Patel', 'Satellite, Ahmedabad', 'Computer Science', 'IT', 'B.Tech Sem 5', 1, 102),
+(102, 'Hardik Pandya', 'Ghatlodia, Ahmedabad', 'Computer Science', 'Computer Applications', 'MCA Year 2', 1, 102),
+(103, 'Pooja Shah', 'Paldi, Ahmedabad', 'Medical', 'Physiotherapy', 'BPT Year 3', 2, 202),
+(104, 'Anjali Mehta', 'Memnagar, Ahmedabad', 'Medical', 'MBBS', 'MBBS Phase 1', 2, 202),
+(105, 'Rohan Joshi', 'Bopal, Ahmedabad', 'Commerce', 'Accountancy', 'B.Com Sem 3', 3, 301),
+(106, 'Manish Trivedi', 'Chandkheda, Ahmedabad', 'Technology', 'Civil Engineering', 'M.Tech Sem 1', 4, 401),
+(107, 'Smit Vyas', 'Ranip, Ahmedabad', 'Computer Science', 'Data Science', 'B.Sc Cs Sem 1', 1, 101),
+(108, 'Khushi Gandhi', 'Maninagar, Ahmedabad', 'Medical', 'Nursing', 'B.Sc Nursing', 2, 203),
+(109, 'Darshan Rathod', 'Gota, Ahmedabad', 'Medical', 'Dental', 'BDS Year 4', 4, 401);
+
+SELECT * FROM STUDENTS;
+
+CREATE TABLE FEES (
+    Sid INT,
+    Fdate DATE,
+    Famount DECIMAL(10,2),
+    
+    PRIMARY KEY (Sid, Fdate),
+    
+    FOREIGN KEY (Sid) REFERENCES STUDENT(Sid)
+);
+DESC FEES;
+
+-- INSERT DATA INTO FEES
+INSERT INTO FEES (Sid, Fdate, Famount) VALUES
+(101, '2011-11-10', 3500.00),
+(102, '2011-11-12', 3500.00),
+(103, '2012-01-05', 4000.00),
+(104, '2011-11-15', 4000.00),
+(105, '2011-12-01', 4500.00),
+(106, '2011-11-20', 3000.00),
+(107, '2013-06-18', 5000.00);
+
+SELECT * FROM FEES;
+
+SELECT COUNT(*) AS Total_Vacant_Rooms FROM ROOM  WHERE Status = 'Vacant';
+
+SELECT H.Hno, H.Hname, COUNT(S.Sid) AS Total_Students FROM HOSTEL H
+JOIN STUDENT S ON H.Hno = S.Hno
+JOIN ROOM R ON S.Hno = R.Hno AND S.Rno = R.Rno
+WHERE R.Rtype = 'Double' GROUP BY H.Hno, H.Hname;
+
+SELECT H.Warden_Nm, H.Haddress FROM HOSTEL H JOIN STUDENT S ON H.Hno = S.Hno WHERE S.Faculty = 'Computer Science';
+
+
+SELECT DISTINCT H.*
+FROM HOSTEL H JOIN ROOM R ON H.Hno = R.Hno
+WHERE R.Status = 'Vacant' AND R.Rtype IN ('Single', 'Four');
+
+SELECT COUNT(*) AS Total_Medical_Students
+FROM STUDENT
+WHERE Faculty = 'Medical';
+
+
+SELECT S.*
+FROM STUDENT S
+JOIN ROOM R ON S.Hno = R.Hno AND S.Rno = R.Rno
+JOIN HOSTEL H ON R.Hno = H.Hno
+WHERE H.Hname = 'Chanakya' AND R.Rtype = 'Double';
+  
+ SELECT H.Hname, R.Rtype, COUNT(S.Sid) AS Total_Students
+FROM HOSTEL H JOIN ROOM R ON H.Hno = R.Hno
+JOIN STUDENT S ON R.Hno = S.Hno AND R.Rno = S.Rno
+GROUP BY H.Hno, H.Hname, R.Rtype;
+
+SELECT S.* FROM STUDENT S JOIN FEES F ON S.Sid = F.Sid
+WHERE MONTH(F.Fdate) = 11 AND YEAR(F.Fdate) = 2011;
